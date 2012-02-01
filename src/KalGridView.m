@@ -11,7 +11,8 @@
 #import "KalTileView.h"
 #import "KalLogic.h"
 #import "KalDate.h"
-#import "KalPrivate.h"
+#import "UIViewAdditions.h"
+#import "NSDateAdditions.h"
 
 #define SLIDE_NONE 0
 #define SLIDE_UP 1
@@ -29,35 +30,48 @@ static NSString *kSlideAnimationId = @"KalSwitchMonths";
 
 @implementation KalGridView
 
-@synthesize selectedTile, highlightedTile, transitioning;
+@synthesize selectedTile, highlightedTile, transitioning, selectedDate;
 
 - (id)initWithFrame:(CGRect)frame logic:(KalLogic *)theLogic delegate:(id<KalViewDelegate>)theDelegate
 {
-  // MobileCal uses 46px wide tiles, with a 2px inner stroke 
-  // along the top and right edges. Since there are 7 columns,
-  // the width needs to be 46*7 (322px). But the iPhone's screen
-  // is only 320px wide, so we need to make the
-  // frame extend just beyond the right edge of the screen
-  // to accomodate all 7 columns. The 7th day's 2px inner stroke
-  // will be clipped off the screen, but that's fine because
-  // MobileCal does the same thing.
-  frame.size.width = 7 * kTileSize.width;
-  
-  if (self = [super initWithFrame:frame]) {
-    self.clipsToBounds = YES;
-    logic = [theLogic retain];
-    delegate = theDelegate;
-    
-    CGRect monthRect = CGRectMake(0.f, 0.f, frame.size.width, frame.size.height);
-    frontMonthView = [[KalMonthView alloc] initWithFrame:monthRect];
-    backMonthView = [[KalMonthView alloc] initWithFrame:monthRect];
-    backMonthView.hidden = YES;
-    [self addSubview:backMonthView];
-    [self addSubview:frontMonthView];
+	// MobileCal uses 46px wide tiles, with a 2px inner stroke 
+	// along the top and right edges. Since there are 7 columns,
+	// the width needs to be 46*7 (322px). But the iPhone's screen
+	// is only 320px wide, so we need to make the
+	// frame extend just beyond the right edge of the screen
+	// to accomodate all 7 columns. The 7th day's 2px inner stroke
+	// will be clipped off the screen, but that's fine because
+	// MobileCal does the same thing.
+	frame.size.width = 7 * kTileSize.width;
 
-    [self jumpToSelectedMonth];
-  }
-  return self;
+	if (self = [super initWithFrame:frame])
+	{
+		self.clipsToBounds = YES;
+
+		logic = [theLogic retain];
+		delegate = theDelegate;
+
+		CGRect monthRect = CGRectMake(0.f, 0.f, frame.size.width, frame.size.height);
+
+		frontMonthView = [[KalMonthView alloc] initWithFrame:monthRect];
+		frontMonthView.disablePastDates = logic.disablePastDates;
+		frontMonthView.disableWeekends = logic.disableWeekends;
+
+		backMonthView = [[KalMonthView alloc] initWithFrame:monthRect];
+		backMonthView.disablePastDates = logic.disablePastDates;
+		backMonthView.disableWeekends = logic.disableWeekends;
+		backMonthView.hidden = YES;
+
+		[frontMonthView setMinDate:logic.minDate maxDate:logic.maxDate];
+		[backMonthView setMinDate:logic.minDate maxDate:logic.maxDate];
+
+		[self addSubview:backMonthView];
+		[self addSubview:frontMonthView];
+
+		[self jumpToSelectedMonth];
+	}
+
+	return self;
 }
 
 - (void)drawRect:(CGRect)rect
@@ -100,22 +114,32 @@ static NSString *kSlideAnimationId = @"KalSwitchMonths";
 
 - (void)receivedTouches:(NSSet *)touches withEvent:event
 {
-  UITouch *touch = [touches anyObject];
-  CGPoint location = [touch locationInView:self];
-  UIView *hitView = [self hitTest:location withEvent:event];
-  
-  if (!hitView)
-    return;
-  
-  if ([hitView isKindOfClass:[KalTileView class]]) {
-    KalTileView *tile = (KalTileView*)hitView;
-    if (tile.belongsToAdjacentMonth) {
-      self.highlightedTile = tile;
-    } else {
-      self.highlightedTile = nil;
-      self.selectedTile = tile;
-    }
-  }
+	UITouch *touch = [touches anyObject];
+	CGPoint location = [touch locationInView:self];
+	UIView *hitView = [self hitTest:location withEvent:event];
+
+	if (!hitView)
+		return;
+
+	if ([hitView isKindOfClass:[KalTileView class]])
+	{
+		KalTileView *tile = (KalTileView*)hitView;
+
+		if (tile.disabled)
+		{
+			// Do Nothing
+			return;
+		}
+		else if (tile.belongsToAdjacentMonth)
+		{
+			self.highlightedTile = tile;
+		}
+		else
+		{
+			self.highlightedTile = nil;
+			self.selectedTile = tile;
+		}
+	}
 }
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
@@ -134,9 +158,15 @@ static NSString *kSlideAnimationId = @"KalSwitchMonths";
   CGPoint location = [touch locationInView:self];
   UIView *hitView = [self hitTest:location withEvent:event];
   
-  if ([hitView isKindOfClass:[KalTileView class]]) {
-    KalTileView *tile = (KalTileView*)hitView;
-    if (tile.belongsToAdjacentMonth) {
+	if ([hitView isKindOfClass:[KalTileView class]])
+	{
+		KalTileView *tile = (KalTileView*)hitView;
+
+		if (tile.disabled)
+		{
+			return;
+		}
+		else if (tile.belongsToAdjacentMonth) {
       if ([tile.date compare:[KalDate dateFromNSDate:logic.baseDate]] == NSOrderedDescending) {
         [delegate showFollowingMonth];
       } else {
@@ -145,6 +175,7 @@ static NSString *kSlideAnimationId = @"KalSwitchMonths";
       self.selectedTile = [frontMonthView tileForDate:tile.date];
     } else {
       self.selectedTile = tile;
+		self.selectedDate = tile.date;
     }
   }
   self.highlightedTile = nil;
@@ -186,6 +217,7 @@ static NSString *kSlideAnimationId = @"KalSwitchMonths";
     self.height = backMonthView.height;
     
     [self swapMonthViews];
+
   } [UIView commitAnimations];
  [UIView setAnimationsEnabled:YES];
 }
@@ -209,6 +241,16 @@ static NSString *kSlideAnimationId = @"KalSwitchMonths";
   [self swapMonthsAndSlide:direction keepOneRow:keepOneRow];
   
   self.selectedTile = [frontMonthView firstTileOfMonth];
+
+	if ([frontMonthView monthContainsDate:self.selectedDate])
+	{
+		self.selectedTile = [frontMonthView tileForDate:self.selectedDate];
+	}
+
+	if (!self.selectedTile.disabled)
+	{
+		self.selectedDate = self.selectedTile.date;
+	}
 }
 
 - (void)slideUp { [self slide:SLIDE_UP]; }
@@ -224,7 +266,8 @@ static NSString *kSlideAnimationId = @"KalSwitchMonths";
 
 - (void)selectDate:(KalDate *)date
 {
-  self.selectedTile = [frontMonthView tileForDate:date];
+  //self.selectedTile = [frontMonthView tileForDate:date];
+	self.selectedDate = date;
 }
 
 - (void)swapMonthViews
@@ -242,7 +285,12 @@ static NSString *kSlideAnimationId = @"KalSwitchMonths";
 
 - (void)markTilesForDates:(NSArray *)dates { [frontMonthView markTilesForDates:dates]; }
 
-- (KalDate *)selectedDate { return selectedTile.date; }
+- (void)disableTilesForDates:(NSArray *)dates
+{
+	[frontMonthView disableTilesForDates:dates];
+}
+
+//- (KalDate *)selectedDate { return selectedTile.date; }
 
 #pragma mark -
 

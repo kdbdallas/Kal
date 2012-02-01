@@ -45,16 +45,19 @@
   UIImageView *shadowView;
   id<KalViewDelegate> delegate;
   KalLogic *logic;
+	BOOL disablePastDates;
 }
 
 @property (nonatomic, assign) id<KalViewDelegate> delegate;
 @property (nonatomic, readonly) UITableView *tableView;
 @property (nonatomic, readonly) KalDate *selectedDate;
+@property (nonatomic, assign) BOOL disablePastDates;
 
 - (id)initWithFrame:(CGRect)frame delegate:(id<KalViewDelegate>)delegate logic:(KalLogic *)logic;
 - (BOOL)isSliding;
 - (void)selectDate:(KalDate *)date;
 - (void)markTilesForDates:(NSArray *)dates;
+- (void)disableTilesForDates:(NSArray *)dates;
 - (void)redrawEntireMonth;
 
 // These 3 methods are exposed for the delegate. They should be called 

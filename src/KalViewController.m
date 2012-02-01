@@ -7,7 +7,8 @@
 #import "KalLogic.h"
 #import "KalDataSource.h"
 #import "KalDate.h"
-#import "KalPrivate.h"
+#import "UIViewAdditions.h"
+#import "NSDateAdditions.h"
 
 #define PROFILER 0
 #if PROFILER
@@ -38,23 +39,64 @@ NSString *const KalDataSourceChangedNotification = @"KalDataSourceChangedNotific
 
 @implementation KalViewController
 
-@synthesize dataSource, delegate, initialDate, selectedDate;
+@synthesize dataSource, delegate, initialDate, selectedDate, disablePastDates, minDate, maxDate, disableWeekends;
 
 - (id)initWithSelectedDate:(NSDate *)date
 {
-  if ((self = [super init])) {
-    logic = [[KalLogic alloc] initForDate:date];
-    self.initialDate = date;
-    self.selectedDate = date;
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(significantTimeChangeOccurred) name:UIApplicationSignificantTimeChangeNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reloadData) name:KalDataSourceChangedNotification object:nil];
-  }
-  return self;
+	if ((self = [super init]))
+	{
+		logic = [[KalLogic alloc] initForDate:date];
+		logic.disablePastDates = self.disablePastDates;
+
+		self.initialDate = date;
+		self.selectedDate = date;
+		disablePastDates = NO;
+		disableWeekends = NO;
+		minDate = nil;
+		maxDate = nil;
+
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(significantTimeChangeOccurred) name:UIApplicationSignificantTimeChangeNotification object:nil];
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reloadData) name:KalDataSourceChangedNotification object:nil];
+	}
+
+	return self;
 }
 
 - (id)init
 {
-  return [self initWithSelectedDate:[NSDate date]];
+	return [self initWithSelectedDate:[NSDate date]];
+}
+
+- (void)setDisableWeekends:(BOOL)shouldDisable
+{
+	disableWeekends = shouldDisable;
+
+	logic.disableWeekends = shouldDisable;
+}
+
+- (void)setDisablePastDates:(BOOL)shouldDisable
+{
+	disablePastDates = shouldDisable;
+	
+	logic.disablePastDates = shouldDisable;
+}
+
+- (void)setMinDate:(NSDate *)min maxDate:(NSDate*)max
+{
+	self.minDate = min;
+	self.maxDate = max;
+
+	[logic setMinDate:min maxDate:max];
+
+	if ([self.selectedDate compare:min] == NSOrderedAscending)
+	{
+		[self showAndSelectDate:min];
+	}
+
+	if ([self.selectedDate compare:max] == NSOrderedDescending)
+	{
+		[self showAndSelectDate:max];
+	}
 }
 
 - (KalView*)calendarView { return (KalView*)self.view; }
@@ -127,13 +169,23 @@ NSString *const KalDataSourceChangedNotification = @"KalDataSourceChangedNotific
 
 - (void)loadedDataSource:(id<KalDataSource>)theDataSource;
 {
-  NSArray *markedDates = [theDataSource markedDatesFrom:logic.fromDate to:logic.toDate];
-  NSMutableArray *dates = [[markedDates mutableCopy] autorelease];
-  for (int i=0; i<[dates count]; i++)
-    [dates replaceObjectAtIndex:i withObject:[KalDate dateFromNSDate:[dates objectAtIndex:i]]];
+	NSArray *disabledDates = [theDataSource disabledDatesFrom:logic.fromDate to:logic.toDate];
+	NSMutableArray *dates = [[disabledDates mutableCopy] autorelease];
+
+	for (int i = 0; i < [dates count]; i++)
+		[dates replaceObjectAtIndex:i withObject:[KalDate dateFromNSDate:[dates objectAtIndex:i]]];
+
+	[[self calendarView] disableTilesForDates:dates];
+
+	NSArray *markedDates = [theDataSource markedDatesFrom:logic.fromDate to:logic.toDate];
+	dates = [[markedDates mutableCopy] autorelease];
+
+	for (int i=0; i<[dates count]; i++)
+		[dates replaceObjectAtIndex:i withObject:[KalDate dateFromNSDate:[dates objectAtIndex:i]]];
   
-  [[self calendarView] markTilesForDates:dates];
-  [self didSelectDate:self.calendarView.selectedDate];
+	[[self calendarView] markTilesForDates:dates];
+
+	[self didSelectDate:self.calendarView.selectedDate];
 }
 
 // ---------------------------------------
@@ -222,6 +274,8 @@ NSString *const KalDataSourceChangedNotification = @"KalDataSourceChangedNotific
   [selectedDate release];
   [logic release];
   [tableView release];
+	[minDate release];
+	[maxDate release];
   [super dealloc];
 }
 

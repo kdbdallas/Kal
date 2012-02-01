@@ -6,7 +6,8 @@
 #import "KalView.h"
 #import "KalGridView.h"
 #import "KalLogic.h"
-#import "KalPrivate.h"
+#import "UIViewAdditions.h"
+#import "NSDateAdditions.h"
 
 @interface KalView ()
 - (void)addSubviewsToHeaderView:(UIView *)headerView;
@@ -19,11 +20,13 @@ static const CGFloat kMonthLabelHeight = 17.f;
 
 @implementation KalView
 
-@synthesize delegate, tableView;
+@synthesize delegate, tableView, disablePastDates;
 
 - (id)initWithFrame:(CGRect)frame delegate:(id<KalViewDelegate>)theDelegate logic:(KalLogic *)theLogic
 {
   if ((self = [super initWithFrame:frame])) {
+	  disablePastDates = NO;
+	  
     delegate = theDelegate;
     logic = [theLogic retain];
     [logic addObserver:self forKeyPath:@"selectedMonthNameAndYear" options:NSKeyValueObservingOptionNew context:NULL];
@@ -207,11 +210,19 @@ static const CGFloat kMonthLabelHeight = 17.f;
 
 - (void)jumpToSelectedMonth { [gridView jumpToSelectedMonth]; }
 
-- (void)selectDate:(KalDate *)date { [gridView selectDate:date]; }
+- (void)selectDate:(KalDate *)date
+{
+	[gridView selectDate:date];
+}
 
 - (BOOL)isSliding { return gridView.transitioning; }
 
 - (void)markTilesForDates:(NSArray *)dates { [gridView markTilesForDates:dates]; }
+
+- (void)disableTilesForDates:(NSArray *)dates
+{
+	[gridView disableTilesForDates:dates];
+}
 
 - (KalDate *)selectedDate { return gridView.selectedDate; }
 

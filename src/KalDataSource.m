@@ -4,7 +4,8 @@
  */
 
 #import "KalDataSource.h"
-#import "KalPrivate.h"
+#import "UIViewAdditions.h"
+#import "NSDateAdditions.h"
 
 @implementation SimpleKalDataSource
 
@@ -43,6 +44,11 @@
 - (NSArray *)markedDatesFrom:(NSDate *)fromDate to:(NSDate *)toDate
 {
   return [NSArray array];
+}
+
+- (NSArray *)disabledDatesFrom:(NSDate *)fromDate to:(NSDate *)toDate
+{
+	return [NSArray array];
 }
 
 - (void)loadItemsFromDate:(NSDate *)fromDate toDate:(NSDate *)toDate

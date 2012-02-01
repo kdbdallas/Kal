@@ -4,7 +4,8 @@
  */
 
 #import "KalDate.h"
-#import "KalPrivate.h"
+#import "UIViewAdditions.h"
+#import "NSDateAdditions.h"
 
 static KalDate *today;
 

@@ -5,7 +5,8 @@
 
 #import "KalLogic.h"
 #import "KalDate.h"
-#import "KalPrivate.h"
+#import "UIViewAdditions.h"
+#import "NSDateAdditions.h"
 
 @interface KalLogic ()
 - (void)moveToMonthForDate:(NSDate *)date;
@@ -23,26 +24,38 @@
 
 @implementation KalLogic
 
-@synthesize baseDate, fromDate, toDate, daysInSelectedMonth, daysInFinalWeekOfPreviousMonth, daysInFirstWeekOfFollowingMonth;
+@synthesize baseDate, fromDate, toDate, daysInSelectedMonth, daysInFinalWeekOfPreviousMonth, daysInFirstWeekOfFollowingMonth, disablePastDates, disableWeekends, minDate, maxDate;
 
 + (NSSet *)keyPathsForValuesAffectingSelectedMonthNameAndYear
 {
-  return [NSSet setWithObjects:@"baseDate", nil];
+	return [NSSet setWithObjects:@"baseDate", nil];
 }
 
 - (id)initForDate:(NSDate *)date
 {
-  if ((self = [super init])) {
-    monthAndYearFormatter = [[NSDateFormatter alloc] init];
-    [monthAndYearFormatter setDateFormat:@"LLLL yyyy"];
-    [self moveToMonthForDate:date];
-  }
+	if ((self = [super init]))
+	{
+		monthAndYearFormatter = [[NSDateFormatter alloc] init];
+		[monthAndYearFormatter setDateFormat:@"LLLL yyyy"];
+
+		disablePastDates = NO;
+		disableWeekends = NO;
+
+		[self moveToMonthForDate:date];
+	}
+
   return self;
 }
 
 - (id)init
 {
-  return [self initForDate:[NSDate date]];
+	return [self initForDate:[NSDate date]];
+}
+
+- (void)setMinDate:(NSDate *)min maxDate:(NSDate*)max
+{
+	self.minDate = min;
+	self.maxDate = max;
 }
 
 - (void)moveToMonthForDate:(NSDate *)date
@@ -135,6 +148,8 @@
 
 - (void) dealloc
 {
+  [minDate release];
+  [maxDate release];
   [monthAndYearFormatter release];
   [baseDate release];
   [fromDate release];

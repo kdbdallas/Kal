@@ -22,13 +22,17 @@
  */
 @interface KalLogic : NSObject
 {
-  NSDate *baseDate;
-  NSDate *fromDate;
-  NSDate *toDate;
-  NSArray *daysInSelectedMonth;
-  NSArray *daysInFinalWeekOfPreviousMonth;
-  NSArray *daysInFirstWeekOfFollowingMonth;
-  NSDateFormatter *monthAndYearFormatter;
+	NSDate *baseDate;
+	NSDate *fromDate;
+	NSDate *toDate;
+	NSArray *daysInSelectedMonth;
+	NSArray *daysInFinalWeekOfPreviousMonth;
+	NSArray *daysInFirstWeekOfFollowingMonth;
+	NSDateFormatter *monthAndYearFormatter;
+	BOOL disablePastDates;
+	BOOL disableWeekends;
+	NSDate *minDate;
+	NSDate *maxDate;
 }
 
 @property (nonatomic, retain) NSDate *baseDate;    // The first day of the currently selected month
@@ -38,11 +42,16 @@
 @property (nonatomic, retain, readonly) NSArray *daysInFinalWeekOfPreviousMonth;  // array of KalDate
 @property (nonatomic, retain, readonly) NSArray *daysInFirstWeekOfFollowingMonth; // array of KalDate
 @property (nonatomic, readonly) NSString *selectedMonthNameAndYear; // localized (e.g. "September 2010" for USA locale)
+@property (nonatomic, assign) BOOL disablePastDates;
+@property (nonatomic, assign) BOOL disableWeekends;
+@property (nonatomic, copy) NSDate *minDate;
+@property (nonatomic, copy) NSDate *maxDate;
 
 - (id)initForDate:(NSDate *)date; // designated initializer.
 
 - (void)retreatToPreviousMonth;
 - (void)advanceToFollowingMonth;
 - (void)moveToMonthForDate:(NSDate *)date;
+- (void)setMinDate:(NSDate *)min maxDate:(NSDate*)max;
 
 @end

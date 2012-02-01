@@ -30,11 +30,12 @@
 }
 
 @property (nonatomic, readonly) BOOL transitioning;
-@property (nonatomic, readonly) KalDate *selectedDate;
+@property (nonatomic, retain) KalDate *selectedDate;
 
 - (id)initWithFrame:(CGRect)frame logic:(KalLogic *)logic delegate:(id<KalViewDelegate>)delegate;
 - (void)selectDate:(KalDate *)date;
 - (void)markTilesForDates:(NSArray *)dates;
+- (void)disableTilesForDates:(NSArray *)dates;
 
 // These 3 methods should be called *after* the KalLogic
 // has moved to the previous or following month.

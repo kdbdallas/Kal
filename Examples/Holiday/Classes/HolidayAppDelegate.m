@@ -33,10 +33,13 @@
    * from a local Sqlite database. For this demo, I am going to set it up to just use
    * the Sqlite database.
    */
+	kal.navigationItem.leftBarButtonItem = [[[UIBarButtonItem alloc] initWithTitle:@"Done" style:UIBarButtonItemStyleBordered target:self action:@selector(handleDone:)] autorelease];
   kal.navigationItem.rightBarButtonItem = [[[UIBarButtonItem alloc] initWithTitle:@"Today" style:UIBarButtonItemStyleBordered target:self action:@selector(showAndSelectToday)] autorelease];
   kal.delegate = self;
-  dataSource = [[HolidaySqliteDataSource alloc] init];
-  kal.dataSource = dataSource;
+  //dataSource = [[HolidaySqliteDataSource alloc] init];
+  //kal.dataSource = dataSource;
+	
+	[kal setMinDate:[NSDate date] maxDate:[NSDate dateWithTimeIntervalSinceNow:15552000]];
   
   // Setup the navigation stack and display it.
   navController = [[UINavigationController alloc] initWithRootViewController:kal];
@@ -44,10 +47,22 @@
   [window makeKeyAndVisible];
 }
 
+- (void)handleDone:(id)sender
+{
+	NSDate *selectedDate = kal.selectedDate;
+	
+	NSLog(@"Done Selected: %@", selectedDate);
+}
+
 // Action handler for the navigation bar's right bar button item.
 - (void)showAndSelectToday
 {
   [kal showAndSelectDate:[NSDate date]];
+}
+
+- (void)dateSelected:(NSDate*)date sender:(id)sender
+{
+	NSLog(@"Date Selected: %@", date);
 }
 
 #pragma mark UITableViewDelegate protocol conformance

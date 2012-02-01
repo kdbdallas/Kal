@@ -5,7 +5,8 @@
 
 #import "KalTileView.h"
 #import "KalDate.h"
-#import "KalPrivate.h"
+#import "UIViewAdditions.h"
+#import "NSDateAdditions.h"
 
 extern const CGSize kTileSize;
 
@@ -53,7 +54,7 @@ extern const CGSize kTileSize;
     textColor = [UIColor whiteColor];
     shadowColor = [UIColor blackColor];
     markerImage = [UIImage imageNamed:@"Kal.bundle/kal_marker_selected.png"];
-  } else if (self.belongsToAdjacentMonth) {
+  } else if (self.belongsToAdjacentMonth || self.disabled) {
     textColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"Kal.bundle/kal_tile_dim_text_fill.png"]];
     shadowColor = nil;
     markerImage = [UIImage imageNamed:@"Kal.bundle/kal_marker_dim.png"];
@@ -89,18 +90,19 @@ extern const CGSize kTileSize;
 
 - (void)resetState
 {
-  // realign to the grid
-  CGRect frame = self.frame;
-  frame.origin = origin;
-  frame.size = kTileSize;
-  self.frame = frame;
-  
-  [date release];
-  date = nil;
-  flags.type = KalTileTypeRegular;
-  flags.highlighted = NO;
-  flags.selected = NO;
-  flags.marked = NO;
+	// realign to the grid
+	CGRect frame = self.frame;
+	frame.origin = origin;
+	frame.size = kTileSize;
+	self.frame = frame;
+
+	[date release], date = nil;
+
+	flags.type = KalTileTypeRegular;
+	flags.highlighted = NO;
+	flags.selected = NO;
+	flags.marked = NO;
+	flags.disabled = NO;
 }
 
 - (void)setDate:(KalDate *)aDate
@@ -118,7 +120,7 @@ extern const CGSize kTileSize;
 
 - (void)setSelected:(BOOL)selected
 {
-  if (flags.selected == selected)
+  if (flags.selected == selected || flags.disabled)
     return;
 
   // workaround since I cannot draw outside of the frame in drawRect:
@@ -160,6 +162,21 @@ extern const CGSize kTileSize;
   
   flags.marked = marked;
   [self setNeedsDisplay];
+}
+
+- (BOOL)isDisabled
+{
+	return flags.disabled;
+}
+
+- (void)setDisabled:(BOOL)disabled
+{
+	if (flags.disabled == disabled)
+		return;
+
+	flags.disabled = disabled;
+
+	[self setNeedsDisplay];
 }
 
 - (KalTileType)type { return flags.type; }
