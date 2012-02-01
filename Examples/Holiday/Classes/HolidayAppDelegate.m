@@ -39,6 +39,7 @@
   //dataSource = [[HolidaySqliteDataSource alloc] init];
   //kal.dataSource = dataSource;
 	
+	[kal setDueDate:[NSDate dateWithTimeIntervalSinceNow:259200]];
 	[kal setMinDate:[NSDate date] maxDate:[NSDate dateWithTimeIntervalSinceNow:15552000]];
   
   // Setup the navigation stack and display it.

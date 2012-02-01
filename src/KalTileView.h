@@ -24,6 +24,7 @@ typedef char KalTileType;
     unsigned int marked : 1;
     unsigned int type : 2;
 	unsigned int disabled : 1;
+	unsigned int dueDate : 1;
   } flags;
 }
 
@@ -32,6 +33,7 @@ typedef char KalTileType;
 @property (nonatomic, getter=isSelected) BOOL selected;
 @property (nonatomic, getter=isMarked) BOOL marked;
 @property (nonatomic, getter=isDisabled) BOOL disabled;
+@property (nonatomic, getter=isDueDate) BOOL dueDate;
 @property (nonatomic) KalTileType type;
 
 - (void)resetState;

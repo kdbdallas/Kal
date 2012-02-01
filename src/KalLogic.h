@@ -33,6 +33,7 @@
 	BOOL disableWeekends;
 	NSDate *minDate;
 	NSDate *maxDate;
+	NSDate *dueDate;
 }
 
 @property (nonatomic, retain) NSDate *baseDate;    // The first day of the currently selected month
@@ -46,6 +47,7 @@
 @property (nonatomic, assign) BOOL disableWeekends;
 @property (nonatomic, copy) NSDate *minDate;
 @property (nonatomic, copy) NSDate *maxDate;
+@property (nonatomic, copy) NSDate *dueDate;
 
 - (id)initForDate:(NSDate *)date; // designated initializer.
 
@@ -53,5 +55,6 @@
 - (void)advanceToFollowingMonth;
 - (void)moveToMonthForDate:(NSDate *)date;
 - (void)setMinDate:(NSDate *)min maxDate:(NSDate*)max;
+- (void)setDueDate:(NSDate *)duedate;
 
 @end

@@ -31,6 +31,7 @@
 
 @property (nonatomic, readonly) BOOL transitioning;
 @property (nonatomic, retain) KalDate *selectedDate;
+@property (nonatomic, retain) NSDate *dueDate;
 
 - (id)initWithFrame:(CGRect)frame logic:(KalLogic *)logic delegate:(id<KalViewDelegate>)delegate;
 - (void)selectDate:(KalDate *)date;

@@ -30,7 +30,7 @@ static NSString *kSlideAnimationId = @"KalSwitchMonths";
 
 @implementation KalGridView
 
-@synthesize selectedTile, highlightedTile, transitioning, selectedDate;
+@synthesize selectedTile, highlightedTile, transitioning, selectedDate, dueDate;
 
 - (id)initWithFrame:(CGRect)frame logic:(KalLogic *)theLogic delegate:(id<KalViewDelegate>)theDelegate
 {
@@ -64,6 +64,9 @@ static NSString *kSlideAnimationId = @"KalSwitchMonths";
 
 		[frontMonthView setMinDate:logic.minDate maxDate:logic.maxDate];
 		[backMonthView setMinDate:logic.minDate maxDate:logic.maxDate];
+
+		frontMonthView.dueDate = theLogic.dueDate;
+		backMonthView.dueDate = theLogic.dueDate;
 
 		[self addSubview:backMonthView];
 		[self addSubview:frontMonthView];
@@ -250,6 +253,11 @@ static NSString *kSlideAnimationId = @"KalSwitchMonths";
 	if (!self.selectedTile.disabled)
 	{
 		self.selectedDate = self.selectedTile.date;
+	}
+
+	if ([frontMonthView monthContainsDate:[KalDate dateFromNSDate:self.dueDate]])
+	{
+		[[frontMonthView tileForDate:[KalDate dateFromNSDate:self.dueDate]] setDueDate:YES];
 	}
 }
 

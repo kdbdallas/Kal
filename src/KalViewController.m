@@ -39,7 +39,7 @@ NSString *const KalDataSourceChangedNotification = @"KalDataSourceChangedNotific
 
 @implementation KalViewController
 
-@synthesize dataSource, delegate, initialDate, selectedDate, disablePastDates, minDate, maxDate, disableWeekends;
+@synthesize dataSource, delegate, initialDate, selectedDate, disablePastDates, minDate, maxDate, disableWeekends, dueDate;
 
 - (id)initWithSelectedDate:(NSDate *)date
 {
@@ -65,6 +65,13 @@ NSString *const KalDataSourceChangedNotification = @"KalDataSourceChangedNotific
 - (id)init
 {
 	return [self initWithSelectedDate:[NSDate date]];
+}
+
+- (void)setDueDate:(NSDate *)duedate
+{
+	dueDate = duedate;
+
+	logic.dueDate = duedate;
 }
 
 - (void)setDisableWeekends:(BOOL)shouldDisable

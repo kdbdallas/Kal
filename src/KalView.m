@@ -20,7 +20,7 @@ static const CGFloat kMonthLabelHeight = 17.f;
 
 @implementation KalView
 
-@synthesize delegate, tableView, disablePastDates;
+@synthesize delegate, tableView, disablePastDates, dueDate;
 
 - (id)initWithFrame:(CGRect)frame delegate:(id<KalViewDelegate>)theDelegate logic:(KalLogic *)theLogic
 {
@@ -213,6 +213,18 @@ static const CGFloat kMonthLabelHeight = 17.f;
 - (void)selectDate:(KalDate *)date
 {
 	[gridView selectDate:date];
+}
+
+- (void)setDueDate:(NSDate *)duedate
+{
+	if (dueDate != nil)
+	{
+		[dueDate release];
+	}
+
+	dueDate = duedate;
+
+	[gridView setDueDate:dueDate];
 }
 
 - (BOOL)isSliding { return gridView.transitioning; }

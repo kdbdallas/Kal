@@ -15,7 +15,7 @@ extern const CGSize kTileSize;
 
 @implementation KalMonthView
 
-@synthesize numWeeks, disablePastDates, minDate, maxDate, disableWeekends;
+@synthesize numWeeks, disablePastDates, minDate, maxDate, disableWeekends, dueDate;
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -70,6 +70,11 @@ extern const CGSize kTileSize;
 			if (self.maxDate != nil && [d compare:[KalDate dateFromNSDate:self.maxDate]] == NSOrderedDescending)
 			{
 				tile.disabled = YES;
+			}
+
+			if (self.dueDate != nil && [[KalDate dateFromNSDate:self.dueDate] isEqual:d])
+			{
+				tile.dueDate = YES;
 			}
 
 			if (self.disableWeekends)

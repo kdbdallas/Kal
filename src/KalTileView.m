@@ -54,6 +54,11 @@ extern const CGSize kTileSize;
     textColor = [UIColor whiteColor];
     shadowColor = [UIColor blackColor];
     markerImage = [UIImage imageNamed:@"Kal.bundle/kal_marker_selected.png"];
+  } else if (self.dueDate) {
+	  [[[UIImage imageNamed:@"Kal.bundle/kal_tile_duedate.png"] stretchableImageWithLeftCapWidth:6 topCapHeight:0] drawInRect:CGRectMake(0, -1, kTileSize.width+1, kTileSize.height+1)];
+	  textColor = [UIColor whiteColor];
+	  shadowColor = [UIColor blackColor];
+	  markerImage = [UIImage imageNamed:@"Kal.bundle/kal_marker.png"];
   } else if (self.belongsToAdjacentMonth || self.disabled) {
     textColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"Kal.bundle/kal_tile_dim_text_fill.png"]];
     shadowColor = nil;
@@ -103,6 +108,7 @@ extern const CGSize kTileSize;
 	flags.selected = NO;
 	flags.marked = NO;
 	flags.disabled = NO;
+	flags.dueDate = NO;
 }
 
 - (void)setDate:(KalDate *)aDate
@@ -140,6 +146,17 @@ extern const CGSize kTileSize;
   
   flags.selected = selected;
   [self setNeedsDisplay];
+}
+
+- (BOOL)isDueDate { return flags.dueDate; }
+
+- (void)setDueDate:(BOOL)dueDate
+{
+	if (flags.dueDate == dueDate)
+		return;
+	
+	flags.dueDate = dueDate;
+	[self setNeedsDisplay];
 }
 
 - (BOOL)isHighlighted { return flags.highlighted; }

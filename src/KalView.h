@@ -51,11 +51,13 @@
 @property (nonatomic, assign) id<KalViewDelegate> delegate;
 @property (nonatomic, readonly) UITableView *tableView;
 @property (nonatomic, readonly) KalDate *selectedDate;
+@property (nonatomic, copy) NSDate *dueDate;
 @property (nonatomic, assign) BOOL disablePastDates;
 
 - (id)initWithFrame:(CGRect)frame delegate:(id<KalViewDelegate>)delegate logic:(KalLogic *)logic;
 - (BOOL)isSliding;
 - (void)selectDate:(KalDate *)date;
+- (void)setDueDate:(NSDate *)duedate;
 - (void)markTilesForDates:(NSArray *)dates;
 - (void)disableTilesForDates:(NSArray *)dates;
 - (void)redrawEntireMonth;

@@ -24,7 +24,7 @@
 
 @implementation KalLogic
 
-@synthesize baseDate, fromDate, toDate, daysInSelectedMonth, daysInFinalWeekOfPreviousMonth, daysInFirstWeekOfFollowingMonth, disablePastDates, disableWeekends, minDate, maxDate;
+@synthesize baseDate, fromDate, toDate, daysInSelectedMonth, daysInFinalWeekOfPreviousMonth, daysInFirstWeekOfFollowingMonth, disablePastDates, disableWeekends, minDate, maxDate, dueDate;
 
 + (NSSet *)keyPathsForValuesAffectingSelectedMonthNameAndYear
 {
@@ -50,6 +50,11 @@
 - (id)init
 {
 	return [self initForDate:[NSDate date]];
+}
+
+- (void)setDueDate:(NSDate *)duedate
+{
+	dueDate = duedate;
 }
 
 - (void)setMinDate:(NSDate *)min maxDate:(NSDate*)max

@@ -14,6 +14,7 @@
 	BOOL disableWeekends;
 	NSDate *minDate;
 	NSDate *maxDate;
+	NSDate *dueDate;
 }
 
 @property (nonatomic) NSUInteger numWeeks;
@@ -21,6 +22,7 @@
 @property (nonatomic, assign) BOOL disableWeekends;
 @property (nonatomic, copy) NSDate *minDate;
 @property (nonatomic, copy) NSDate *maxDate;
+@property (nonatomic, copy) NSDate *dueDate;
 
 - (id)initWithFrame:(CGRect)rect; // designated initializer
 - (void)showDates:(NSArray *)mainDates leadingAdjacentDates:(NSArray *)leadingAdjacentDates trailingAdjacentDates:(NSArray *)trailingAdjacentDates;
